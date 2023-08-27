@@ -14,3 +14,9 @@ def post_telemetry():
     return {
         'ok': True
     }
+
+@app.get("/query/<attribute>")
+def get_attribute(attribute):
+    return {
+        attribute: 42
+    }
