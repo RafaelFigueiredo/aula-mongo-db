@@ -22,4 +22,18 @@ def post_telemetry():
 
 @app.get("/query/<attribute>")
 def get_attribute(attribute):
-    return storage
+    time_serie = {}
+    for key in storage:
+        # lembra que nossa key é o timestamp
+        telemetry = storage[key]
+        print(f'telemetry: {telemetry}')
+
+        # no query estamos interessados em apenas um unico attributo
+        value = telemetry[attribute]
+        time_serie[key] = value
+    
+    result = {
+        'attribute': attribute,
+        'data': time_serie
+    }
+    return result
