@@ -88,3 +88,34 @@ mondo.db.users.delete_one({'user': 'guest'})
 filter = {"Name": {"$regex": "^A"}}
 mongo.db.my_collection.delete_many(filter)
 ```
+
+## Nosso projeto de test
+
+**REQ1:** Construir uma API de telemetria com duas rotas:
+* POST `/telemetry` - Essa rota deve receber uma leitura de telemetria no formato JSON, contendo valores para vários atributos e armazena-la.  
+Exemplo de requisição:
+```sh
+curl --request POST \
+  --url http://localhost:5000/telemetry \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: Insomnia/2023.5.6' \
+  --data '{
+	"temperature": 36.0,
+	"pressure": 1022
+}'
+```
+* GET `/query/<attribute>` - Essa rota deve retornar todas as leituras de um atributo dado um intervalo de tempo.  
+Exemplo de requisição:
+```sh
+curl --request GET \
+  --url http://localhost:5000/query/temperature \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: Insomnia/2023.5.6' \
+  --data '{
+	"begin": "2023-07-29T00:00:00",
+	"end": "2023-08-29T23:59:59"
+}'
+```
+**REQ2:** Os devem ser enviados no formato JSON
+**REQ3:** Os timestamps devem ser no formato ISO
+
