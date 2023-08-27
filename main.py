@@ -1,7 +1,10 @@
 from flask import Flask, request
+from flask_pymongo import PyMongo
 from datetime import datetime
 
 app = Flask(__name__)
+app.config["MONGO_URI"] = "mongodb://root:swordfish@localhost:27017/my_app?authSource=admin"
+mongo = PyMongo(app)
 
 storage = {}
 
@@ -11,11 +14,10 @@ def post_telemetry():
     telemetry = request.get_json()
 
     # add timestamp
-    telemetry['timestamp'] = datetime.utcnow().isoformat()
+    telemetry['timestamp'] = datetime.utcnow()
 
     print(telemetry)
-    key = telemetry['timestamp']
-    storage[key] = telemetry
+    mongo.db.telemetry.insert_one(telemetry)
     return {
         'ok': True
     }
@@ -26,23 +28,22 @@ def get_attribute(attribute):
     begin = datetime.fromisoformat(body['begin'])
     end = datetime.fromisoformat(body['end'])
 
+    filter={
+        'timestamp': {
+            '$gte': begin, 
+            '$lte': end
+        }
+    }
+
+    storage = mongo.db.telemetry.find(
+        filter=filter
+    )
+    
     time_serie = {}
-    for key in storage:
-        # lembra que nossa key é o timestamp
-        timestamp = datetime.fromisoformat(key)
+    for telemetry in storage:
+        print(telemetry)
+        key = telemetry['timestamp'].isoformat()
         
-        # ignora resultados anteriores a nossa janela de interesse
-        if timestamp < begin:
-            continue
-        
-        # ignora results posteriores a nossa janela de interesse
-        if timestamp > end:
-            continue
-
-        telemetry = storage[key]
-        print(f'telemetry: {telemetry}')
-
-        # no query estamos interessados em apenas um unico attributo
         value = telemetry[attribute]
         time_serie[key] = value
     
