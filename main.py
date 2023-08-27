@@ -7,6 +7,9 @@ app = Flask(__name__)
 def post_telemetry():
     telemetry = request.get_json()
 
+    # add timestamp
+    telemetry['timestamp'] = datetime.utcnow().isoformat()
+
     print(telemetry)
     return {
         'ok': True
